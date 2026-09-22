@@ -1,0 +1,8 @@
+# Credentials. These never belong in a repo.
+client_secret*.json
+token*.json
+*.json.bak
+
+__pycache__/
+*.pyc
+.DS_Store
