@@ -177,6 +177,16 @@ def main():
     args = parser.parse_args(['read', '--id', 'x', '--token', '/tmp/t.json'])
     check('--token wins over --account', gs.token_path(args) == '/tmp/t.json')
 
+    print('version and changelog')
+    heads = [l for l in open(gs.CHANGELOG_PATH, encoding='utf-8').read().splitlines()
+             if l.startswith('## [') and not l.startswith('## [Unreleased]')]
+    check('newest CHANGELOG release matches __version__',
+          heads and heads[0].startswith('## [%s]' % gs.__version__), heads[:1])
+    listing = gs.changelog_text('list')
+    check('--changelog lists every version heading', '1.0.0' in listing, listing)
+    check('--changelog full prints the file',
+          gs.changelog_text('full').startswith('# Changelog'))
+
     print()
     if FAILURES:
         print('%d failure(s): %s' % (len(FAILURES), ', '.join(FAILURES)))

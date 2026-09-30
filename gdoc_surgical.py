@@ -19,6 +19,7 @@ hand edits, comments, suggestions, images, sharing, revision history.
     gdoc_surgical.py insert-row  --id DOC_ID --table 0 --cells "v1.3|2026-09-22|Brian|Added X"
     gdoc_surgical.py set-cell    --id DOC_ID --table 0 --row 2 --col 1 --with "text" --expect "old"
     gdoc_surgical.py delete-row  --id DOC_ID --table 0 --row 3 --expect "text in that row"
+    gdoc_surgical.py --version | --changelog [list|full]
 
 Rules of engagement:
   - Always `read` or `list-tables` first. Every destructive command targets an
@@ -38,6 +39,11 @@ import re
 import signal
 import sys
 import time
+
+__version__ = '1.0.0'
+HERE = os.path.dirname(os.path.abspath(__file__))
+CHANGELOG_PATH = os.path.join(HERE, 'CHANGELOG.md')
+CHANGELOG_URL = 'https://github.com/BrianArfi/gdoc-surgical/blob/main/CHANGELOG.md'
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
 CONFIG_DIR = os.environ.get(
@@ -583,10 +589,28 @@ COMMANDS = {
 }
 
 
+def changelog_text(mode='list'):
+    """The bundled CHANGELOG.md: a list of version headings, or the full text."""
+    try:
+        with open(CHANGELOG_PATH, encoding='utf-8') as f:
+            text = f.read()
+    except OSError:
+        return ('gdoc-surgical %s. CHANGELOG.md is not next to this file; '
+                'read it at %s' % (__version__, CHANGELOG_URL))
+    if mode == 'full':
+        return text.rstrip('\n')
+    heads = [line[3:].strip() for line in text.splitlines() if line.startswith('## [')]
+    return '\n'.join(['gdoc-surgical %s' % __version__] + heads +
+                     ['', 'Full text: --changelog full'])
+
+
 def build_parser():
     p = argparse.ArgumentParser(
         prog='gdoc_surgical', description='Surgical in-place Google Doc edits',
         epilog='Always read the document before you write to it.')
+    p.add_argument('--version', action='version', version='gdoc-surgical ' + __version__)
+    p.add_argument('--changelog', nargs='?', const='list', choices=['list', 'full'],
+                   help='print the bundled changelog: version list, or full text')
     p.add_argument('command', choices=['auth'] + sorted(COMMANDS))
     p.add_argument('--id', help='Google Doc id, the long string in the doc URL')
     p.add_argument('--account', default='default',
@@ -636,9 +660,15 @@ def validate(parser, args):
             parser.error('%s requires %s' % (args.command, label))
 
 
-def main():
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
     parser = build_parser()
-    args = parser.parse_args()
+    if '--changelog' in argv:
+        i = argv.index('--changelog')
+        mode = argv[i + 1] if i + 1 < len(argv) and argv[i + 1] in ('list', 'full') else 'list'
+        print(changelog_text(mode))
+        return 0
+    args = parser.parse_args(argv)
     validate(parser, args)
     if args.command == 'auth':
         return cmd_auth(args)

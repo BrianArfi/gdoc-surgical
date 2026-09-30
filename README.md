@@ -1,5 +1,7 @@
 # gdoc-surgical
 
+![version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue) Version 1.0.0. See [CHANGELOG.md](CHANGELOG.md).
+
 Most tools that write to a Google Doc replace the whole document. So an edit
 somebody made between your last read and your write is not merged, it is deleted,
 and nothing warns them. They find out when they reopen the document and their
@@ -100,6 +102,17 @@ python3 tests/test_gdoc_surgical.py
 
 No network and no credentials. The request builders and the guards are pure
 functions over plain dicts, which is why they are pure functions.
+
+## Changelog
+
+Every release is recorded in [CHANGELOG.md](CHANGELOG.md), newest first. The CLI
+reads the same file:
+
+```bash
+python3 gdoc_surgical.py --version            # gdoc-surgical 1.0.0
+python3 gdoc_surgical.py --changelog          # list of versions
+python3 gdoc_surgical.py --changelog full     # the whole changelog
+```
 
 ## License
 
