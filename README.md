@@ -2,7 +2,7 @@
 
 **Let AI update your Google Doc without erasing anyone else's work.**
 
-Most tools that write to a Google Doc replace the whole document. An edit somebody made since your last read is not merged, it is deleted, and nobody gets a warning. gdoc-surgical changes only the sentence, table row or cell you name, and leaves the rest alone: hand edits, comments, suggestions, images and sharing.
+Most tools that write to a Google Doc replace the whole document. An edit somebody made since your last read is not merged, it is deleted, and nobody gets a warning. gdoc-surgical changes only the sentence, table row or cell you name, and leaves everything outside that part alone: other people's edits, comments, suggestions, images and sharing. A comment anchored to the exact text you change can still come loose.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
@@ -10,22 +10,23 @@ Most tools that write to a Google Doc replace the whole document. An edit somebo
 
 ![A terminal runs read on a sample launch plan and prints every paragraph with its index, including a line added by a teammate. Then replace changes "Q3 2026" to "Q4 2026", reports 1 match in body paragraphs, and confirms 3 occurrences replaced with the document link](docs/gdoc-terminal.png)
 
+*Illustration with a sample document; the output lines are the tool's real format.*
+
 ## The shift: AI now writes your documents
 
 PRDs, proposals, SOPs. You say what changed, and AI does the writing. That works well in a file only you own. A shared Google Doc is different: people edit it between the moment AI reads it and the moment AI writes. So the AI needs a way to change one part, not the whole document.
 
-| Command | What it changes | Example |
+| Task | What AI now does | What you say |
 | :--- | :--- | :--- |
-| `replace` | Every occurrence of exact text, with a count | `replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"` |
-| `insert-row` | One new row in a table, for example a revision table | `insert-row --id DOC_ID --table 0 --cells "v1.3\|2026-09-22\|Sam\|Added the refund rule"` |
-| `set-cell` | One cell, only if it still holds the text you expect | `set-cell --id DOC_ID --table 1 --row 2 --col 1 --with "Approved" --expect "Pending"` |
-| `linkify` | A link on every occurrence, the words stay the same | `linkify --id DOC_ID --find "Q3 Roadmap" --url "https://..."` |
-| `append` | A new section at the end, with headings and bullets | `append --id DOC_ID --text '## Decision\n- we ship on the 30th'` |
+| Update a PRD | AI rewrites the section you asked about | "Move the launch to Q4 and add a v1.3 row" |
+| Keep a sign-off table | AI marks each approval as it comes in | "Mark the design review as Approved" |
+| Link tickets across a doc | AI adds the link wherever the ticket is named | "Link every mention of the Q3 Roadmap" |
+| Log a decision | AI adds the entry at the end of the doc | "Add today's decision to the decision log" |
 
 ## The gap: AI rewrites the whole shared doc
 
 - AI updates the PRD in the morning. In the afternoon a teammate asks, "Where did my edit go?"
-- Your review comments come loose from their text, marked "Original content deleted".
+- Your review comments come loose from the text they were on.
 - An image in the document is gone after the update. Nobody gets a warning.
 - AI says "done", but the word it looked for was not in the document.
 - A revision table gets a v1.2 row under v1.3, and nobody notices.
@@ -34,7 +35,7 @@ The faster AI updates a shared document, the more of other people's work it can 
 
 ## The fix: edit only the part you name
 
-gdoc-surgical sends small, targeted edits through the Google Docs API. It never uploads a new copy of the document. Each command that can hit the wrong place has a guard: it counts matches, checks that the target still holds the text you expect, or refuses a version number that goes backwards. When a guard fails, nothing changes and the command exits with a non-zero code.
+gdoc-surgical sends small, targeted edits through the Google Docs API. It never uploads a new copy of the document. The commands that target a position have a guard: set-cell and delete-row check the expected text, and insert-row and set-cell refuse a version that goes backwards. replace and linkify fail with exit code 2 when nothing matched. When a guard fails, nothing changes and the command exits with a non-zero code.
 
 | Before | After |
 | :--- | :--- |
@@ -55,7 +56,7 @@ flowchart LR
   B --> C{"3. Is the target<br/>unique and still there?"}
   C -- "no" --> B
   C -- "yes" --> D["4. Smallest edit<br/>replace, set-cell, insert-row"]
-  D --> E{"5. Guard passes?<br/>--expect, count, version"}
+  D --> E{"5. Guard passes?<br/>--expect, version, a match"}
   E -- "no: nothing changed" --> B
   E -- "yes" --> F(["6. Doc link back,<br/>only that part changed"])
 ```
@@ -71,7 +72,7 @@ flowchart LR
    ```bash
    python3 gdoc_surgical.py replace --id DOC_ID --find "planned for Q3 2026" --with "planned for Q4 2026"
    ```
-5. **Let the guard decide.** A zero-match replace, an `--expect` mismatch or a version regression stops the write. Read the document again, then retry.
+5. **Let the guard decide.** An `--expect` mismatch or a version regression stops the write. A replace that matched nothing exits 2. Read the document again, then retry.
    ```bash
    python3 gdoc_surgical.py delete-row --id DOC_ID --table 0 --row 3 --expect "the draft row"
    ```
@@ -177,7 +178,7 @@ python3 gdoc_surgical.py delete-row   --id DOC_ID --table 0 --row 3 --expect "te
 | `--allow-version-regression` | `insert-row`, `set-cell` | Permit a version at or below one already in the table |
 | `--version`, `--changelog [list\|full]` | none | Print the version, or the bundled changelog |
 
-**Exit codes.** `0` success. `1` an error: no token, a table or row out of range, a write with no document id, or a refused version. `2` nothing matched: zero replacements, `linkify` text not found, or an `--expect` mismatch. In every non-zero case except a failed write response, the document is unchanged.
+**Exit codes.** `0` success. `1` an error: no token, a table or row out of range, a write with no document id, or a refused version. `2` nothing matched: zero replacements, `linkify` text not found, or an `--expect` mismatch. In every non-zero case except a failed write response, the document is unchanged. `insert-row` inserts the row first and fills it second. If the fill fails, an empty row remains. `insert-table` works the same way.
 
 `replace` or `set-cell`? `replace` is global. It cannot safely target a cell whose whole content is a common string: a version cell reading `1.4` would also rewrite every `1.4` in the changelog. Address that cell by coordinate with `set-cell`.
 
