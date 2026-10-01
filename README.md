@@ -5,8 +5,6 @@
 **AI rewrote your whole Google Doc and wiped your teammate's edits? This edits only the part you name.**
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
-[![GitHub stars](https://img.shields.io/github/stars/BrianArfi/gdoc-surgical?style=social)](https://github.com/BrianArfi/gdoc-surgical/stargazers)
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-orange.svg)](docs/setup.md#use-it-as-an-agent-skill)
 
 </div>
@@ -24,14 +22,25 @@
 - **Changes only the sentence, table row or cell you name.** Everything else in the doc stays as it was.
 - **Keeps other people's work:** their edits, comments, suggestions, images and sharing. Only a comment pinned to the exact text you change can come loose.
 - **Refuses to guess.** If the text it should change is not there, nothing changes and it tells you.
-- **Keeps revision tables honest.** A version number cannot go backwards, so v1.2 never lands under v1.3.
+- **Works on tables too.** Change one cell or add one row, and the rest of the table stays as it was.
 - **Works from plain words.** Ask your AI agent, for example Claude Code, and it runs the commands.
 
 ## Quick start
 
-1. Install: `git clone https://github.com/BrianArfi/gdoc-surgical && cd gdoc-surgical && pip install -r requirements.txt`
-2. Sign in to Google once: `python3 gdoc_surgical.py auth --credentials client_secret.json` (how to get that file: [setup guide](docs/setup.md))
-3. Make one edit: `python3 gdoc_surgical.py replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"`
+Sign in to Google once with `client_secret.json` (needs a free Google Cloud OAuth client, about 10 minutes: [setup guide](docs/setup.md)).
+
+```bash
+# 1. Install
+git clone https://github.com/BrianArfi/gdoc-surgical
+cd gdoc-surgical
+pip install -r requirements.txt
+
+# 2. Sign in to Google once
+python3 gdoc_surgical.py auth --credentials client_secret.json
+
+# 3. Make one edit
+python3 gdoc_surgical.py replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"
+```
 
 No Google account yet? `python3 tests/test_gdoc_surgical.py` runs every guard against a fake document, offline.
 
@@ -41,7 +50,6 @@ Move a launch from Q3 to Q4 in a shared launch plan, without touching the line a
 
 ```text
 $ python3 gdoc_surgical.py replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"
-[INFO] 'Q3 2026' found 1x in body paragraphs. Table cells are not counted here, and the replace does hit those too.
 [OK] Replaced 3 occurrence(s). Doc: https://docs.google.com/document/d/DOC_ID/edit
 ```
 
