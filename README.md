@@ -9,7 +9,7 @@
 
 </div>
 
-![A terminal runs read on a sample launch plan and prints every paragraph with its index, including a line added by a teammate. Then replace changes "Q3 2026" to "Q4 2026", reports 1 match in body paragraphs, and confirms 3 occurrences replaced with the document link](docs/gdoc-terminal.png)
+![Two Google Docs-style pages side by side. Left, marked with a red cross: AI rewrote the whole launch plan, a teammate's risk line is struck out in red and Dina's comment is crossed out and detached. Right, marked with a green tick: only the dates changed from Q3 2026 to Q4 2026, highlighted in lime, while the risk line stays and Dina's comment is still pinned. Headline: Change one line. Keep everyone's work.](docs/hero.png)
 
 ## Why
 
@@ -24,6 +24,10 @@
 - **Refuses to guess.** If the text it should change is not there, nothing changes and it tells you.
 - **Works on tables too.** Change one cell or add one row, and the rest of the table stays as it was.
 - **Works from plain words.** Ask your AI agent, for example Claude Code, and it runs the commands.
+
+![A terminal types three real gdoc-surgical commands against an offline sample doc. read lists every paragraph with its index, with Q3 2026 outlined. replace changes Q3 2026 to Q4 2026 and prints "OK, Replaced 3 occurrence(s)". A second read shows the target line now reads Q4 2026, tagged changed, and the risk line added by Dina, tagged untouched](docs/demo.gif)
+
+*Real output, recorded offline against a sample doc: [docs/src/offline_demo.py](docs/src/offline_demo.py) runs the same commands with no Google account.*
 
 ## Quick start
 
@@ -42,7 +46,13 @@ python3 gdoc_surgical.py auth --credentials client_secret.json
 python3 gdoc_surgical.py replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"
 ```
 
-No Google account yet? `python3 tests/test_gdoc_surgical.py` runs every guard against a fake document, offline.
+No Google account yet? Try it offline first:
+
+```bash
+python3 docs/src/offline_demo.py read --id DEMO_DOC
+python3 docs/src/offline_demo.py replace --id DEMO_DOC --find "Q3 2026" --with "Q4 2026"
+python3 tests/test_gdoc_surgical.py   # every guard, against a fake document
+```
 
 ## Example
 
