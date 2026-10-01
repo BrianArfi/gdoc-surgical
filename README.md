@@ -63,6 +63,23 @@ $ python3 gdoc_surgical.py replace --id DOC_ID --find "Q3 2026" --with "Q4 2026"
 
 *Illustration with a sample document; the output lines are the tool's real format.*
 
+### On a real Google Doc
+
+Three commands against a [live demo Doc](https://docs.google.com/document/d/1rPF-CNo-Qw7LVqTtNko7bOAbc3-yG3s7F2eLdFl8riw/edit) (anyone with the link can view it):
+
+```text
+$ python3 gdoc_surgical.py replace --id DOC_ID --find "beta" --with "closed beta"
+[OK] Replaced 7 occurrence(s).
+$ python3 gdoc_surgical.py set-cell --id DOC_ID --table 0 --row 1 --col 2 --with "Done" --expect "In progress"
+[OK] Table #0 cell (1,2): 'In progress' -> 'Done'.
+$ python3 gdoc_surgical.py insert-row --id DOC_ID --table 1 --cells "v1.2|2026-10-01|Status update via gdoc-surgical"
+[OK] Row inserted into table #1 at row 3 with 3 cell(s).
+```
+
+![The live demo Doc before and after. Before: the plan says beta, Dina's onboarding row is In progress, and the revision table ends at v1.1. After: beta reads closed beta everywhere, Dina's row says Done, a v1.2 row is added, and nothing else in the Doc moved](docs/real-doc-before-after.png)
+
+The comment pinned to the first paragraph is still there after all three edits. A whole-doc rewrite would have detached it.
+
 ---
 
 ## Documentation
