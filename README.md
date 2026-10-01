@@ -4,7 +4,7 @@
 
 Most tools that write to a Google Doc replace the whole document. An edit somebody made since your last read is not merged, it is deleted, and nobody gets a warning. gdoc-surgical changes only the sentence, table row or cell you name, and leaves everything outside that part alone: other people's edits, comments, suggestions, images and sharing. A comment anchored to the exact text you change can still come loose.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-orange.svg)](#use-it-as-an-agent-skill)
 
@@ -259,4 +259,4 @@ python3 gdoc_surgical.py --changelog full     # the whole changelog
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
