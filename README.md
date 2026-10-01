@@ -1,13 +1,9 @@
-<div align="center">
-
 # gdoc-surgical
 
 **AI rewrote your whole Google Doc and wiped your teammate's edits? This edits only the part you name.**
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Made for Claude Code](https://img.shields.io/badge/made%20for-Claude%20Code-orange.svg)](docs/setup.md#use-it-as-an-agent-skill)
-
-</div>
 
 ![Two Google Docs-style pages side by side. Left, marked with a red cross: AI rewrote the whole launch plan, a teammate's risk line is struck out in red and Dina's comment is crossed out and detached. Right, marked with a green tick: only the dates changed from Q3 2026 to Q4 2026, highlighted in lime, while the risk line stays and Dina's comment is still pinned. Headline: Change one line. Keep everyone's work.](docs/hero.png)
 
