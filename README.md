@@ -25,7 +25,7 @@
 - **Works on tables too.** Change one cell or add one row, and the rest of the table stays as it was.
 - **Works from plain words.** Ask your AI agent, for example Claude Code, and it runs the commands.
 
-![A terminal types three real gdoc-surgical commands against an offline sample doc. read lists every paragraph with its index, with Q3 2026 outlined. replace changes Q3 2026 to Q4 2026 and prints "OK, Replaced 3 occurrence(s)". A second read shows the target line now reads Q4 2026, tagged changed, and the risk line added by Dina, tagged untouched](docs/demo.gif)
+![A terminal runs three real gdoc-surgical commands against an offline sample doc. read lists every paragraph and the timeline table rows, with Q3 2026 outlined three times. replace reports 1 match in paragraphs and 2 in table cells, then "OK, Replaced 3 occurrence(s)". A second read shows Q4 2026 on the target line and in both table rows, tagged changed, and the risk line added by Dina, tagged kept](docs/demo.gif)
 
 *Real output, recorded offline against a sample doc: [docs/src/offline_demo.py](docs/src/offline_demo.py) runs the same commands with no Google account.*
 

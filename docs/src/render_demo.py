@@ -53,7 +53,7 @@ def render():
         fh.write(html)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={'width': 960, 'height': 540})
+        page = browser.new_page(viewport={'width': 800, 'height': 450})
         page.goto('file:///' + page_path.replace('\\', '/'))
         page.wait_for_load_state('networkidle')
         page.evaluate('document.fonts.ready')

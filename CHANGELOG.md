@@ -13,6 +13,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 ### Added
 - `--version` prints the version, and `--changelog` prints this changelog (a list of versions, or `full` for the whole file).
 - This `CHANGELOG.md`, backfilled from the git history.
+- `read` prints the rows of each table under its `<TABLE #n>` line, so table text can be checked before a write.
+
+### Changed
+- `replace` counts matches in table cells too before it writes, and reports the split: `Found 'X' 3 time(s): 1 in paragraphs, 2 in table cells.`
 
 ## [1.0.0] - 2026-09-22
 <!-- source: git commit 29c8b59 "gdoc-surgical: edit a Google Doc in place instead of overwriting it" (2026-09-22 13:18 +0700), the initial and only commit. No git tag or GitHub release exists; 1.0.0 labels this first public cut. -->

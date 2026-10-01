@@ -41,7 +41,7 @@ flowchart LR
 Every destructive command targets an index, and indexes move the moment somebody else edits the document. So each one refuses to guess:
 
 - **`delete-row` wants `--expect`, and `set-cell` takes it.** It is text that must already be in the target. A shifted index then fails loudly instead of quietly editing the wrong row. This is what makes the tool safe to run unattended. `delete-row` refuses to run without it.
-- **`replace` reports the occurrence count before it writes**, and exits 2 when it changed nothing. A silent zero-match usually means the wording is not what you remembered. The pre-write count covers body paragraphs only. The replace itself also hits table cells, and the `[OK]` line reports the true total.
+- **`replace` reports the occurrence count before it writes**, and exits 2 when it changed nothing. A silent zero-match usually means the wording is not what you remembered. The pre-write count covers body paragraphs and top-level table cells. The `[OK]` line reports the total the API actually changed.
 - **Revision tables cannot go backwards.** `insert-row`, and `set-cell` on column 0, check the first cell against every version already in the first column of that table. Writing `v1.2` into a table that already has `v1.3` is refused, and the message names the next valid number. A version number that goes backwards is invisible: the row looks right and the reader trusts a version that is older than the text above it. Override with `--allow-version-regression`, only for a deliberate duplicate. The check reads `major.minor` tokens such as `v1.3` or `1.3`, and a table without them passes through.
 - **Every write is verified.** An API response with no document id in it is reported as a failure, never as a quiet success.
 

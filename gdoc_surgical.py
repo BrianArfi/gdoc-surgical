@@ -394,6 +394,8 @@ def cmd_read(docs, args):
             print('[%d-%d] <TABLE #%d: %sx%s>'
                   % (el['startIndex'], el['endIndex'], t_idx,
                      el['table'].get('rows'), el['table'].get('columns')))
+            for r_i, row in enumerate(table_rows_text(el)):
+                print('    row %d | %s' % (r_i, ' | '.join(row)))
             t_idx += 1
     return 0
 
@@ -414,11 +416,16 @@ def cmd_list_tables(docs, args):
 
 def cmd_replace(docs, args):
     doc = get_doc(docs, args.id)
-    body = ''.join(para_text(el) for kind, el in walk_body(doc) if kind == 'paragraph')
     flags = 0 if args.match_case else re.IGNORECASE
-    n = len(re.findall(re.escape(args.find), body, flags))
-    print("[INFO] '%s' found %dx in body paragraphs. Table cells are not counted "
-          'here, and the replace does hit those too.' % (args.find, n))
+    pattern = re.escape(args.find)
+    body = ''.join(para_text(el) for kind, el in walk_body(doc) if kind == 'paragraph')
+    cells = '\n'.join(cell_text(c) for t in tables_in(doc)
+                      for row in t['table'].get('tableRows', [])
+                      for c in row.get('tableCells', []))
+    n_body = len(re.findall(pattern, body, flags))
+    n_cells = len(re.findall(pattern, cells, flags))
+    print("[INFO] Found '%s' %d time(s): %d in paragraphs, %d in table cells."
+          % (args.find, n_body + n_cells, n_body, n_cells))
     result = batch(docs, args.id, [{'replaceAllText': {
         'containsText': {'text': args.find, 'matchCase': bool(args.match_case)},
         'replaceText': getattr(args, 'with')}}])

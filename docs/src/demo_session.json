@@ -1,14 +1,14 @@
 [
  {
   "cmd": "python3 gdoc_surgical.py read --id DEMO_DOC",
-  "out": "# Launch plan (sample)  (docId: DEMO_DOC)\n\n[1-13] # Launch plan\n[13-47] Target: public launch in Q3 2026.\n[47-81] Owner: Sam. Reviewers: Dina, Leo.\n[81-148] Risk: payment partner sign-off may slip two weeks. (added by Dina)\n[148-200] <TABLE #0: 3x2>"
+  "out": "# Launch plan (sample)  (docId: DEMO_DOC)\n\n[1-13] # Launch plan\n[13-47] Target: public launch in Q3 2026.\n[47-81] Owner: Sam. Reviewers: Dina, Leo.\n[81-148] Risk: payment partner sign-off may slip two weeks. (added by Dina)\n[148-200] <TABLE #0: 3x2>\n    row 0 | Milestone | Target\n    row 1 | Beta | Q3 2026\n    row 2 | Launch | Q3 2026"
  },
  {
   "cmd": "python3 gdoc_surgical.py replace --id DEMO_DOC --find \"Q3 2026\" --with \"Q4 2026\"",
-  "out": "[INFO] 'Q3 2026' found 1x in body paragraphs. Table cells are not counted here, and the replace does hit those too.\n[OK] Replaced 3 occurrence(s). Doc: https://docs.google.com/document/d/DEMO_DOC/edit"
+  "out": "[INFO] Found 'Q3 2026' 3 time(s): 1 in paragraphs, 2 in table cells.\n[OK] Replaced 3 occurrence(s). Doc: https://docs.google.com/document/d/DEMO_DOC/edit"
  },
  {
   "cmd": "python3 gdoc_surgical.py read --id DEMO_DOC",
-  "out": "# Launch plan (sample)  (docId: DEMO_DOC)\n\n[1-13] # Launch plan\n[13-47] Target: public launch in Q4 2026.\n[47-81] Owner: Sam. Reviewers: Dina, Leo.\n[81-148] Risk: payment partner sign-off may slip two weeks. (added by Dina)\n[148-200] <TABLE #0: 3x2>"
+  "out": "# Launch plan (sample)  (docId: DEMO_DOC)\n\n[1-13] # Launch plan\n[13-47] Target: public launch in Q4 2026.\n[47-81] Owner: Sam. Reviewers: Dina, Leo.\n[81-148] Risk: payment partner sign-off may slip two weeks. (added by Dina)\n[148-200] <TABLE #0: 3x2>\n    row 0 | Milestone | Target\n    row 1 | Beta | Q4 2026\n    row 2 | Launch | Q4 2026"
  }
 ]
