@@ -260,3 +260,7 @@ python3 gdoc_surgical.py --changelog full     # the whole changelog
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## More AI Skills
+
+gdoc-surgical is one of the AI skills Brian Arfi uses every day and shares. See the page for this skill, with examples, at [brianarfi.com/skills/gdoc-surgical](https://brianarfi.com/skills/gdoc-surgical?utm_source=github&utm_medium=readme&utm_campaign=ai-skills), and the rest at [brianarfi.com/skills](https://brianarfi.com/skills?utm_source=github&utm_medium=readme&utm_campaign=ai-skills).
