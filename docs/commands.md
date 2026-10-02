@@ -8,7 +8,7 @@
 | :--- | :--- | :--- |
 | `read` | The document as text, each paragraph with its start and end index, each table as `<TABLE #n: rows x cols>` followed by its rows | Finding the exact target before any write |
 | `list-tables` | Every table with its index, size, start index and header row | Picking the right `--table` number |
-| `replace` | Every occurrence of exact text replaced, body and table cells. Prints the body-paragraph count before it writes, the total changed after, and exits 2 on zero | Renaming a feature across a doc. Moving a target date |
+| `replace` | Every occurrence of exact text replaced, body and table cells. Prints the match count (paragraphs and table cells) before it writes, the total changed after, and exits 2 on zero | Renaming a feature across a doc. Moving a target date |
 | `linkify` | Every occurrence hyperlinked, including inside table cells. Only the link style changes, never the words. Exits 2 when the text is not found | Linking tickets or a roadmap wherever they are named |
 | `append` | New lines at the end. `#` to `####` become headings, `-` or `*` become bullets, the rest is normal text | A weekly update. A decision log entry |
 | `insert-table` | A new table at the end, filled row by row from `--rows "a\|b\|c"` flags | A new status table or a risk table |
