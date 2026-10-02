@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gdoc-surgical before / after wipe</title>
+<!-- Rendered to docs/before-after.gif by docs/src/render_gifs.py. Illustration, not a screenshot. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F1F3EE; --field: #0D453E; --ink: #072B27; --signal: #C8F751;
+    --line: #D5DBD3; --red: #C2412D; --redbg: #FBE9E5;
+    --head: 'Archivo', system-ui, sans-serif; --body: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1100px; height: 600px; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); padding: 26px 34px; overflow: hidden; }
+
+  .head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+  .head h2 { font-family: var(--head); font-weight: 900; font-size: 30px; letter-spacing: -0.6px; }
+  .head h2 mark { background: var(--signal); padding: 0 8px; border-radius: 5px; color: var(--ink); }
+  .head span { font-family: var(--mono); font-size: 15px; color: #5D6E69; }
+
+  .card { position: relative; height: 492px; border: 3px solid var(--ink); border-radius: 16px;
+          box-shadow: 6px 6px 0 var(--ink); overflow: hidden; background: #fff; }
+  .layer { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 270px; grid-template-rows: 1fr 64px; background: #fff; }
+  .after { clip-path: inset(0 0 0 100%); animation: reveal 1.8s cubic-bezier(.65,0,.35,1) 2.6s both,
+                                                     unreveal 1.6s cubic-bezier(.65,0,.35,1) 7.6s forwards; }
+
+  .doc { padding: 22px 30px; position: relative; }
+  .bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .bar .ic { width: 20px; height: 26px; background: #4A7DE0; border-radius: 3px; }
+  .bar .t { font-weight: 600; font-size: 19px; }
+  .h { font-family: var(--head); font-weight: 800; font-size: 30px; margin-bottom: 10px; }
+  .p { font-size: 20px; line-height: 1.55; margin-bottom: 4px; color: #23332F; }
+  table { border-collapse: collapse; margin-top: 14px; width: 82%; font-size: 19px; }
+  td { border: 1.5px solid var(--line); padding: 7px 12px; }
+  tr:first-child td { font-weight: 600; background: #F6F8F5; }
+  .note { font-family: var(--mono); font-size: 14px; font-weight: 700; padding: 2px 8px; border-radius: 5px;
+          margin-left: 10px; vertical-align: 2px; white-space: nowrap; }
+
+  .before .doc > .dim, .before table { opacity: .38; }
+  .before .risk { color: var(--red); background: var(--redbg); text-decoration: line-through;
+                  text-decoration-thickness: 3px; padding: 1px 5px; border-radius: 3px; }
+  .before .note { background: var(--redbg); color: var(--red); border: 2px solid var(--red); }
+  .after .risk { background: #FFF6CC; padding: 1px 5px; border-radius: 3px; }
+  .after .note { background: var(--signal); color: var(--ink); border: 2px solid var(--ink); }
+  .hl { background: var(--signal); box-shadow: 0 0 0 3px var(--signal), 0 0 0 5px var(--ink);
+        border-radius: 2px; font-weight: 600; margin: 0 4px; }
+
+  .side { border-left: 2px solid var(--line); background: #FAFBF9; padding: 120px 18px 18px; position: relative; }
+  .bubble { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 12px 14px; position: relative; }
+  .who { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 18px; margin-bottom: 6px; }
+  .av { width: 28px; height: 28px; border-radius: 50%; background: #E7C86B; display: grid; place-items: center; font-size: 14px; font-weight: 700; }
+  .msg { font-size: 18px; line-height: 1.38; color: #23332F; }
+  .pin { position: absolute; left: -20px; top: 26px; width: 18px; height: 3px; background: var(--ink); }
+  .before .bubble { opacity: .5; border-style: dashed; transform: translate(4px, 22px) rotate(4deg); }
+  .before .strike { position: absolute; left: 6px; right: 6px; top: 52%; height: 4px; background: var(--red);
+                    transform: rotate(-12deg); border-radius: 3px; }
+  .after .bubble { box-shadow: 0 0 0 4px var(--signal); }
+  .stamp { margin-top: 18px; font-family: var(--mono); font-size: 15px; font-weight: 700; line-height: 1.45; }
+  .before .stamp { margin-top: 40px; color: var(--red); }
+  .after .stamp { color: var(--field); }
+
+  .foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 0 26px;
+          font-family: var(--mono); font-size: 18px; font-weight: 700; }
+  .before .foot { background: var(--redbg); color: var(--red); border-top: 3px solid var(--red); }
+  .after .foot { background: var(--ink); color: #DDE7E2; border-top: 3px solid var(--ink); }
+  .after .foot b { color: var(--signal); }
+  .chip { font-family: var(--head); font-size: 16px; font-weight: 800; padding: 4px 10px; border-radius: 6px; white-space: nowrap; }
+  .before .chip { background: var(--red); color: #fff; }
+  .after .chip { background: var(--signal); color: var(--ink); }
+
+  .divider { position: absolute; top: 0; bottom: 0; left: 100%; width: 4px; margin-left: -2px; background: var(--ink); z-index: 5;
+             animation: slide 1.8s cubic-bezier(.65,0,.35,1) 2.6s both, unslide 1.6s cubic-bezier(.65,0,.35,1) 7.6s forwards,
+                        show 2.4s linear 2.3s both, show2 2.2s linear 7.3s forwards; }
+  .knob { position: absolute; top: 46%; left: -24px; width: 52px; height: 52px; border-radius: 50%; background: var(--signal);
+          border: 3px solid var(--ink); display: grid; place-items: center; font-family: var(--head); font-weight: 900; font-size: 22px; }
+
+  @keyframes reveal { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes unreveal { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+  @keyframes show { 0% { opacity: 0; } 12%, 88% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes show2 { 0% { opacity: 0; } 12%, 88% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes slide { from { left: 100%; } to { left: 0%; } }
+  @keyframes unslide { from { left: 0%; } to { left: 100%; } }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h2>Same ask: <mark>"Move the launch to Q4."</mark></h2>
+    <span>Illustration</span>
+  </div>
+  <div class="card">
+    <!-- BEFORE: a tool that writes the whole document -->
+    <div class="layer before">
+      <div class="doc">
+        <div class="bar dim"><span class="ic"></span><span class="t">Launch plan</span></div>
+        <div class="h dim">Launch plan</div>
+        <div class="p dim">Target: public launch in Q4 2026.</div>
+        <div class="p dim">Owner: Sam. Reviewers: Dina, Leo.</div>
+        <div class="p"><span class="risk">Risk: payment partner sign-off may slip.</span><span class="note">Dina's line: gone</span></div>
+        <table>
+          <tr><td>Milestone</td><td>Target</td></tr>
+          <tr><td>Beta</td><td>Q4 2026</td></tr>
+          <tr><td>Launch</td><td>Q4 2026</td></tr>
+        </table>
+      </div>
+      <div class="side">
+        <div class="bubble">
+          <div class="who"><span class="av">D</span>Dina</div>
+          <div class="msg">Check with finance before we move dates.</div>
+          <div class="strike"></div>
+        </div>
+        <div class="stamp">Comment: detached<br>from its text</div>
+      </div>
+      <div class="foot"><span class="chip">WITHOUT</span>AI wrote a new copy of the whole doc, then said "Done".</div>
+    </div>
+
+    <!-- AFTER: gdoc-surgical -->
+    <div class="layer after">
+      <div class="doc">
+        <div class="bar"><span class="ic"></span><span class="t">Launch plan</span></div>
+        <div class="h">Launch plan</div>
+        <div class="p">Target: public launch in <span class="hl">Q4 2026</span>.</div>
+        <div class="p">Owner: Sam. Reviewers: Dina, Leo.</div>
+        <div class="p"><span class="risk">Risk: payment partner sign-off may slip.</span><span class="note">Dina's line: kept</span></div>
+        <table>
+          <tr><td>Milestone</td><td>Target</td></tr>
+          <tr><td>Beta</td><td><span class="hl">Q4 2026</span></td></tr>
+          <tr><td>Launch</td><td><span class="hl">Q4 2026</span></td></tr>
+        </table>
+      </div>
+      <div class="side">
+        <div class="bubble"><span class="pin"></span>
+          <div class="who"><span class="av">D</span>Dina</div>
+          <div class="msg">Check with finance before we move dates.</div>
+        </div>
+        <div class="stamp">Comment: still<br>pinned</div>
+      </div>
+      <div class="foot"><span class="chip">WITH gdoc-surgical</span><b>[OK]</b> Replaced 3 occurrence(s). Nothing else changed.</div>
+    </div>
+
+    <div class="divider"><div class="knob">&lsaquo;&rsaquo;</div></div>
+  </div>
+</body>
+</html>

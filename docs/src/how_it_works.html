@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gdoc-surgical how it works</title>
+<!-- Rendered to docs/how-it-works.gif by docs/src/render_gifs.py. Illustration of the flow. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F1F3EE; --field: #0D453E; --ink: #072B27; --signal: #C8F751;
+    --line: #D5DBD3; --red: #C2412D; --redbg: #FBE9E5;
+    --head: 'Archivo', system-ui, sans-serif; --body: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1100px; height: 560px; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); padding: 26px 34px; overflow: hidden; position: relative; }
+
+  .head { display: flex; justify-content: space-between; align-items: baseline; height: 62px; }
+  .head h2 { font-family: var(--head); font-weight: 900; font-size: 32px; letter-spacing: -0.6px; }
+  .head h2 mark { background: var(--signal); padding: 0 8px; border-radius: 5px; color: var(--ink); }
+  .head span { font-family: var(--mono); font-size: 15px; color: #5D6E69; }
+
+  .row { display: grid; grid-template-columns: repeat(4, 231px); gap: 36px; position: relative; }
+  .box { background: #fff; border: 3px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 var(--ink);
+         height: 262px; padding: 16px 16px; position: relative; }
+  .num { font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--field); letter-spacing: 1px; }
+  .num i { font-style: normal; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+           background: var(--ink); color: var(--signal); margin-right: 8px; }
+  .title { font-family: var(--head); font-weight: 800; font-size: 23px; line-height: 1.1; margin: 10px 0 8px; }
+  .txt { font-size: 17.5px; line-height: 1.38; color: #23332F; }
+  .code { margin-top: 10px; background: var(--ink); color: #DDE7E2; font-family: var(--mono); font-size: 14px;
+          padding: 7px 9px; border-radius: 7px; line-height: 1.4; }
+  .code b { color: var(--signal); }
+  .code .r { color: #FF8A73; font-weight: 700; }
+
+  .b1 { animation: rise .45s ease .6s both, glow .4s ease 1.3s both; }
+  .b2 { animation: rise .45s ease 2.2s both, glow .4s ease 3.0s both; }
+  .b3 { animation: rise .45s ease 3.8s both, glow .4s ease 4.6s both; }
+  .b4 { animation: rise .45s ease 5.4s both, glow .4s ease 6.2s both; }
+
+  .arrow { position: absolute; top: 120px; width: 36px; height: 4px; background: var(--ink); transform-origin: left; }
+  .arrow::after { content: ''; position: absolute; right: -2px; top: -6px; border: 8px solid transparent;
+                  border-left: 10px solid var(--ink); border-right: 0; }
+  .a1 { left: 231px; animation: draw .4s ease 1.9s both; }
+  .a2 { left: 498px; animation: draw .4s ease 3.5s both; }
+  .a3 { left: 765px; animation: draw .4s ease 5.1s both; }
+
+  .track { position: relative; height: 56px; margin-top: 16px; }
+  .token { position: absolute; left: 115px; top: 6px; margin-left: -64px; width: 128px; height: 40px;
+           animation: tin .3s ease 1.2s both, travel 5s linear 1.2s both; }
+  .token span { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 9px;
+                font-family: var(--mono); font-weight: 700; font-size: 18px; border: 3px solid var(--ink); }
+  .token .o { background: #fff; color: var(--ink); animation: out .25s linear 4.85s both; }
+  .token .n { background: var(--signal); color: var(--ink); animation: flip .35s cubic-bezier(.2,1.4,.4,1) 4.85s both; }
+  .tl { position: absolute; top: 18px; font-family: var(--mono); font-size: 14px; color: #5D6E69; }
+
+  svg.loop { position: absolute; left: 0; top: 0; width: 1100px; height: 560px; pointer-events: none; }
+  svg.loop path { fill: none; stroke: var(--red); stroke-width: 4; stroke-dasharray: 1100; stroke-dashoffset: 1100;
+                  animation: dash 1.1s ease 6.9s both; }
+  svg.loop polygon { fill: var(--red); animation: in .2s linear 7.95s both; }
+  .looplabel { position: absolute; left: 0; right: 0; top: 486px; text-align: center; animation: rise .4s ease 7.7s both; }
+  .looplabel span { display: inline-block; background: var(--redbg); color: var(--red); border: 2px solid var(--red);
+                    font-family: var(--mono); font-weight: 700; font-size: 17px; padding: 6px 14px; border-radius: 8px; }
+
+  .cover { position: absolute; inset: 0; background: var(--paper); z-index: 10;
+           animation: uncover .4s linear 0s both, recover .7s linear 10.3s forwards; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes glow { from { box-shadow: 6px 6px 0 var(--ink); } to { box-shadow: 6px 6px 0 var(--ink), 0 0 0 5px var(--signal); } }
+  @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes tin { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes travel {
+    0%, 28% { transform: translateX(0); }
+    36%, 60% { transform: translateX(267px); }
+    68%, 92% { transform: translateX(534px); }
+    100% { transform: translateX(801px); }
+  }
+  @keyframes in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes flip { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  @keyframes uncover { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes recover { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+  <div class="head">
+    <h2>How one edit goes: <mark>read, locate, guard, verify</mark></h2>
+    <span>Illustration</span>
+  </div>
+
+  <div class="row">
+    <div class="box b1">
+      <div class="num"><i>1</i>READ</div>
+      <div class="title">Read the live doc</div>
+      <div class="txt">Not a copy from earlier. Every paragraph and table row, as it is now.</div>
+      <div class="code">read --id DOC_ID</div>
+    </div>
+    <div class="box b2">
+      <div class="num"><i>2</i>LOCATE</div>
+      <div class="title">Find the exact target</div>
+      <div class="txt">Count the matches. Too many? Use longer text, or set-cell.</div>
+      <div class="code">Found 'Q3 2026'<br>3 time(s)</div>
+    </div>
+    <div class="box b3">
+      <div class="num"><i>3</i>GUARDED REPLACE</div>
+      <div class="title">Change only that part</div>
+      <div class="txt">Only that text or cell changes. A moved row fails --expect, so nothing is written.</div>
+      <div class="code">--expect "Q3 2026"</div>
+    </div>
+    <div class="box b4">
+      <div class="num"><i>4</i>VERIFY</div>
+      <div class="title">Check the answer</div>
+      <div class="txt">No doc id back is a failure. Zero changes exits 2.</div>
+      <div class="code"><b>[OK]</b> Replaced 3<br>occurrence(s).</div>
+    </div>
+    <div class="arrow a1"></div>
+    <div class="arrow a2"></div>
+    <div class="arrow a3"></div>
+  </div>
+
+  <div class="track">
+    <div class="token"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></div>
+  </div>
+
+  <svg class="loop" viewBox="0 0 1100 560">
+    <path d="M 683 432 L 683 470 L 149 470 L 149 440"/>
+    <polygon points="137,444 161,444 149,426"/>
+  </svg>
+  <div class="looplabel"><span>Guard fails? Nothing changed. Read the doc again.</span></div>
+
+  <div class="cover"></div>
+</body>
+</html>

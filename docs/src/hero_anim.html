@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>gdoc-surgical animated hero</title>
+<!-- Rendered to docs/hero.gif by docs/src/render_gifs.py. Illustration, not a screenshot. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F1F3EE; --field: #0D453E; --ink: #072B27; --signal: #C8F751;
+    --line: #D5DBD3; --red: #C2412D; --redbg: #FBE9E5;
+    --head: 'Archivo', system-ui, sans-serif; --body: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 640px; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body);
+         padding: 34px 36px 0; overflow: hidden; position: relative; }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-end; height: 132px; }
+  .brand { font-family: var(--mono); font-weight: 700; font-size: 19px; color: var(--field);
+           display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .brand i { width: 13px; height: 13px; background: var(--signal); border: 3px solid var(--ink); border-radius: 3px; }
+  h1 { font-family: var(--head); font-weight: 900; font-size: 46px; line-height: 1.02; letter-spacing: -1.4px; }
+  h1 mark { background: var(--signal); color: var(--ink); padding: 0 10px; border-radius: 6px; }
+  .ask { background: #fff; border: 3px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 var(--ink);
+         padding: 12px 18px; font-family: var(--mono); font-size: 18px; font-weight: 700; margin-bottom: 10px;
+         animation: pop .45s cubic-bezier(.2,1.4,.4,1) .5s both; }
+  .ask small { display: block; font-size: 14px; color: #5D6E69; font-weight: 500; margin-bottom: 3px; }
+
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 22px; }
+  .label { font-family: var(--head); font-weight: 800; font-size: 23px; margin-bottom: 12px; height: 32px;
+           display: flex; align-items: center; gap: 10px; }
+  .label .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+                font-size: 17px; font-weight: 900; color: #fff; }
+  .bad .label { color: var(--red); animation: rise .4s ease 1.3s both; }
+  .bad .dot { background: var(--red); }
+  .good .label { color: var(--field); animation: rise .4s ease 4.1s both; }
+  .good .dot { background: var(--field); color: var(--signal); }
+
+  .page { background: #fff; border: 3px solid var(--ink); border-radius: 14px; height: 362px;
+          display: flex; overflow: hidden; box-shadow: 6px 6px 0 var(--ink); position: relative; }
+  .doc { flex: 1; padding: 18px 20px; position: relative; overflow: hidden; }
+  .bar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; height: 28px; }
+  .bar .ic { width: 18px; height: 24px; background: #4A7DE0; border-radius: 3px; }
+  .bar .t { font-weight: 600; font-size: 18px; }
+  .tag { margin-left: auto; font-family: var(--mono); font-size: 13px; font-weight: 700;
+         padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
+  .bad .tag { background: var(--redbg); color: var(--red); animation: pop .35s ease 2.5s both; }
+  .good .tag { background: var(--signal); color: var(--ink); animation: pop .35s ease 5.5s both; }
+  .h { font-family: var(--head); font-weight: 800; font-size: 25px; margin-bottom: 8px; }
+  .p { font-size: 18px; line-height: 1.5; margin-bottom: 4px; color: #23332F; position: relative; }
+  .risk { background: #FFF6CC; padding: 1px 4px; border-radius: 3px; position: relative; }
+  table { border-collapse: collapse; margin-top: 10px; width: 100%; font-size: 17px; }
+  td { border: 1.5px solid var(--line); padding: 5px 9px; height: 36px; }
+  tr:first-child td { font-weight: 600; background: #F6F8F5; }
+
+  /* Q3 -> Q4 swap: both values in one grid cell */
+  .sw { display: inline-grid; vertical-align: bottom; }
+  .sw > span { grid-area: 1 / 1; white-space: nowrap; }
+  .bad .sw .o { animation: out .2s linear 2.4s both; }
+  .bad .sw .n { animation: in .2s linear 2.4s both; }
+  .good .sw .o { animation: out .25s linear both; }
+  .good .sw .n { animation: flip .4s cubic-bezier(.2,1.4,.4,1) both; background: var(--signal);
+                 box-shadow: 0 0 0 3px var(--signal), 0 0 0 5px var(--ink); border-radius: 2px; font-weight: 600; }
+  .good .sw { animation: gap .2s ease both; }
+  .good .sw.d1 { animation-delay: 4.8s; } .good .sw.d2 { animation-delay: 5.0s; } .good .sw.d3 { animation-delay: 5.2s; }
+  .good .d1 > span { animation-delay: 4.8s !important; }
+  .good .d2 > span { animation-delay: 5.0s !important; }
+  .good .d3 > span { animation-delay: 5.2s !important; }
+
+  /* the whole-doc rewrite: a sweep, then everything is a new, faded copy */
+  .sweep { position: absolute; left: 0; right: 0; top: -60px; height: 60px;
+           background: linear-gradient(180deg, rgba(194,65,45,0), rgba(194,65,45,.28));
+           border-bottom: 3px solid var(--red); animation: sweep 1s linear 1.4s both; }
+  .bad .fx { animation: dim .35s ease 2.4s both; }
+  .bad .risk { animation: redden .3s ease 2.7s both; }
+  .bad .risk::after { content: ''; position: absolute; left: 0; top: 52%; height: 3px; width: 100%;
+                      background: var(--red); transform-origin: left; animation: grow .4s ease 2.7s both; }
+
+  .side { width: 172px; border-left: 2px solid var(--line); background: #FAFBF9; padding: 80px 12px 12px; position: relative; }
+  .bubble { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 10px; position: relative; }
+  .who { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 16px; margin-bottom: 5px; }
+  .av { width: 24px; height: 24px; border-radius: 50%; background: #E7C86B; display: grid; place-items: center;
+        font-size: 13px; font-weight: 700; }
+  .msg { font-size: 16px; line-height: 1.35; color: #23332F; }
+  .pin { position: absolute; left: -14px; top: 22px; width: 12px; height: 2px; background: var(--ink); }
+  .bad .bubble { animation: detach .5s ease 3.1s both; }
+  .bad .pin { animation: out .2s linear 3.1s both; }
+  .strike { position: absolute; left: 4px; right: 4px; top: 50%; height: 4px; background: var(--red);
+            transform: rotate(-12deg) scaleX(0); transform-origin: left; border-radius: 3px;
+            animation: strike .35s ease 3.4s both; }
+  .good .bubble { animation: glow .5s ease 5.7s both; }
+  .stamp { margin-top: 12px; font-family: var(--mono); font-size: 14px; font-weight: 700; line-height: 1.45; }
+  .bad .stamp { margin-top: 26px; color: var(--red); animation: rise .4s ease 3.6s both; }
+  .good .stamp { color: var(--field); animation: rise .4s ease 5.9s both; }
+
+  .term { position: absolute; right: 20px; bottom: 16px; background: var(--ink); color: #DDE7E2;
+          font-family: var(--mono); font-size: 16px; padding: 10px 14px; border-radius: 10px;
+          box-shadow: 5px 5px 0 var(--signal); animation: pop .4s cubic-bezier(.2,1.4,.4,1) 6.3s both; }
+  .term b { color: var(--signal); }
+  .said { position: absolute; right: 20px; bottom: 16px; background: var(--redbg); color: var(--red);
+          border: 2px solid var(--red); font-family: var(--mono); font-size: 16px; font-weight: 700;
+          padding: 8px 12px; border-radius: 10px; animation: pop .4s ease 3.9s both; }
+
+  .cover { position: absolute; inset: 0; background: var(--paper); z-index: 10;
+           animation: uncover .4s linear 0s both, recover .7s linear 9.3s forwards; }
+
+  @keyframes gap { from { margin: 0; } to { margin: 0 3px 0 4px; } }
+  @keyframes pop { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes flip { from { opacity: 0; transform: translateY(-10px) scale(.7); } to { opacity: 1; transform: none; } }
+  @keyframes sweep { from { top: -60px; } to { top: 100%; } }
+  @keyframes dim { to { opacity: .33; filter: blur(.6px); } }
+  @keyframes redden { to { color: var(--red); background: var(--redbg); } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes detach { to { opacity: .45; border-style: dashed; transform: translate(6px, 8px) rotate(4deg); } }
+  @keyframes strike { to { transform: rotate(-12deg) scaleX(1); } }
+  @keyframes glow { to { box-shadow: 0 0 0 4px var(--signal); } }
+  @keyframes uncover { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes recover { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <div class="brand"><i></i>gdoc-surgical</div>
+      <h1>Change one line.<br><mark>Keep everyone's work.</mark></h1>
+    </div>
+    <div class="ask"><small>You ask your AI:</small>"Move the launch to Q4."</div>
+  </div>
+
+  <div class="panels">
+    <div class="panel bad">
+      <div class="label"><span class="dot">&#x2715;</span>AI rewrites the whole doc</div>
+      <div class="page">
+        <div class="doc">
+          <div class="sweep"></div>
+          <div class="bar fx"><span class="ic"></span><span class="t">Launch plan</span></div>
+          <div class="bar" style="position:absolute;top:18px;right:20px;margin:0"><span class="tag">WHOLE DOC REPLACED</span></div>
+          <div class="h fx">Launch plan</div>
+          <div class="p fx">Target: launch in <span class="sw"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span>.</div>
+          <div class="p fx">Owner: Sam.</div>
+          <div class="p"><span class="risk">Risk: sign-off may slip.</span></div>
+          <table class="fx">
+            <tr><td>Milestone</td><td>Target</td></tr>
+            <tr><td>Beta</td><td><span class="sw"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span></td></tr>
+            <tr><td>Launch</td><td><span class="sw"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span></td></tr>
+          </table>
+        </div>
+        <div class="side">
+          <div class="bubble"><span class="pin"></span>
+            <div class="who"><span class="av">D</span>Dina</div>
+            <div class="msg">Check with finance before we move dates.</div>
+            <div class="strike"></div>
+          </div>
+          <div class="stamp">Dina's line: gone<br>Her comment:<br>detached</div>
+        </div>
+        <div class="said">AI: "Done!"</div>
+      </div>
+    </div>
+
+    <div class="panel good">
+      <div class="label"><span class="dot">&#x2713;</span>gdoc-surgical edits only the target</div>
+      <div class="page">
+        <div class="doc">
+          <div class="bar"><span class="ic"></span><span class="t">Launch plan</span><span class="tag">ONLY THE DATES CHANGED</span></div>
+          <div class="h">Launch plan</div>
+          <div class="p">Target: launch in <span class="sw d1"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span>.</div>
+          <div class="p">Owner: Sam.</div>
+          <div class="p"><span class="risk">Risk: sign-off may slip.</span></div>
+          <table>
+            <tr><td>Milestone</td><td>Target</td></tr>
+            <tr><td>Beta</td><td><span class="sw d2"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span></td></tr>
+            <tr><td>Launch</td><td><span class="sw d3"><span class="o">Q3 2026</span><span class="n">Q4 2026</span></span></td></tr>
+          </table>
+        </div>
+        <div class="side">
+          <div class="bubble"><span class="pin"></span>
+            <div class="who"><span class="av">D</span>Dina</div>
+            <div class="msg">Check with finance before we move dates.</div>
+          </div>
+          <div class="stamp">Dina's line: kept<br>Her comment:<br>still pinned</div>
+        </div>
+        <div class="term"><b>[OK]</b> Replaced 3 occurrence(s).</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover"></div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+[
+ {
+  "cmd": "python3 gdoc_surgical.py set-cell --id DEMO_DOC --table 0 --row 1 --col 1 --with \"Q4 2026\" --expect \"Q2 2026\"",
+  "out": "[ERROR] Cell (1,1) of table #0 does not contain the --expect text.\n        expected: 'Q2 2026'\n        cell is:  'Q3 2026'\n        Nothing changed."
+ },
+ {
+  "cmd": "echo $?",
+  "out": "2"
+ },
+ {
+  "cmd": "python3 gdoc_surgical.py replace --id DEMO_DOC --find \"Q3 2025\" --with \"Q4 2026\"",
+  "out": "[INFO] Found 'Q3 2025' 0 time(s): 0 in paragraphs, 0 in table cells.\n[OK] Replaced 0 occurrence(s). Doc: https://docs.google.com/document/d/DEMO_DOC/edit\n[WARN] Nothing replaced. Check the exact wording and case with `read`."
+ },
+ {
+  "cmd": "echo $?",
+  "out": "2"
+ },
+ {
+  "cmd": "python3 gdoc_surgical.py read --id DEMO_DOC",
+  "out": "# Launch plan (sample)  (docId: DEMO_DOC)\n\n[1-13] # Launch plan\n[13-47] Target: public launch in Q3 2026.\n[47-81] Owner: Sam. Reviewers: Dina, Leo.\n[81-148] Risk: payment partner sign-off may slip two weeks. (added by Dina)\n[148-200] <TABLE #0: 3x2>\n    row 0 | Milestone | Target\n    row 1 | Beta | Q3 2026\n    row 2 | Launch | Q3 2026"
+ }
+]

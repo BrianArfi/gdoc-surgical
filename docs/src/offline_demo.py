@@ -3,7 +3,8 @@
 
 No Google account and no network. The fake service answers documents().get
 and documents().batchUpdate (replaceAllText) the way the Docs API does, so
-the printed lines are the tool's real output. Used to record docs/demo.gif.
+the printed lines are the tool's real output. Used to record docs/demo.gif
+and docs/guards.gif.
 
     python docs/src/offline_demo.py read --id DEMO_DOC
     python docs/src/offline_demo.py replace --id DEMO_DOC --find "Q3 2026" --with "Q4 2026"

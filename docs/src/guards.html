@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#F1F3EE; --field:#0D453E; --ink:#072B27; --signal:#C8F751; --red:#FF8A73; --amber:#F5C76B; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1000px; height: 640px; background: var(--paper); overflow: hidden; }
+  body { padding: 16px 22px 24px 16px; font-family: 'JetBrains Mono', Consolas, monospace; }
+  .win { height: 600px; background: var(--ink); border-radius: 14px; border: 3px solid var(--ink);
+         box-shadow: 7px 7px 0 var(--field); display: flex; flex-direction: column; overflow: hidden; }
+  .chrome { height: 38px; background: #0A3833; display: flex; align-items: center; padding: 0 16px; gap: 9px; flex-shrink: 0; }
+  .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #2C5C55; display: block; }
+  .chrome span { margin-left: 12px; color: #9DB7AF; font-size: 15px; }
+  .chrome b { margin-left: auto; font-family: 'Archivo', sans-serif; font-size: 15px; color: var(--ink);
+              background: var(--signal); padding: 3px 10px; border-radius: 5px; }
+  .screen { flex: 1; padding: 12px 16px; color: #DDE7E2; font-size: 16.5px; line-height: 1.42;
+            display: flex; flex-direction: column; overflow: hidden; letter-spacing: -0.2px; }
+  .l { white-space: pre-wrap; word-break: break-word; min-height: 1.42em; flex-shrink: 0; }
+  .prompt { color: var(--signal); }
+  .cmd { color: #fff; }
+  .ok { color: #9DB7AF; }
+  .err { color: var(--red); font-weight: 700; }
+  .warn { color: var(--amber); font-weight: 700; }
+  .info { color: #9DB7AF; }
+  .hl { background: var(--signal); color: var(--ink); padding: 0 4px; border-radius: 3px; font-weight: 700; }
+  .keep { background: #164F47; border-left: 3px solid var(--signal); margin-left: -8px; padding-left: 5px; }
+  .note { color: var(--ink); background: var(--signal); font-family: 'Archivo', sans-serif; font-size: 14px;
+          padding: 1px 7px; border-radius: 4px; margin-left: 10px; white-space: nowrap; }
+  .cursor { display: inline-block; width: 10px; height: 19px; background: var(--signal); vertical-align: -3px; }
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span>gdoc-surgical guards, offline sample doc</span><b>real output</b></div>
+  <div class="screen" id="s"></div>
+</div>
+<script>
+// Real output captured from docs/src/offline_demo.py, see guards_session.json.
+const SESSION = __SESSION__;
+const CHAR_MS = 12, PAUSE_AFTER_CMD = 350, LINE_MS = 110, GAP = 1500, END_HOLD = 3200;
+
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function deco(line, step) {
+  const h = esc(line);
+  const cmd = SESSION[step].cmd;
+  if (cmd.startsWith('echo')) return '<span class="err">' + h + '</span><span class="note">' +
+    (step < 2 ? 'exit 2: wrong cell, nothing written' : 'exit 2: no match, not "done"') + '</span>';
+  if (line.startsWith('[ERROR]')) return '<span class="err">[ERROR]</span>' + h.slice(7);
+  if (line.startsWith('[WARN]')) return '<span class="warn">[WARN]</span>' + h.slice(6);
+  if (line.startsWith('[INFO]')) return '<span class="info">' + h + '</span>';
+  if (line.startsWith('[OK]')) return '<span class="ok">' + h + '</span>';
+  if (line.trim() === 'Nothing changed.') return h.replace('Nothing changed.', '<span class="hl">Nothing changed.</span>');
+  if (step === SESSION.length - 1) {
+    if (line.includes('Q3 2026')) return h + '<span class="note">unchanged</span>';
+    if (line.includes('added by Dina')) return '<span class="keep">' + h + '</span><span class="note">kept</span>';
+  }
+  return h;
+}
+const events = []; let t = 600;
+events.push({t:0, step:0, typed:0, lines:0});
+SESSION.forEach((s, i) => {
+  for (let c = 0; c <= s.cmd.length; c++) { events.push({t, step:i, typed:c, lines:0}); t += CHAR_MS; }
+  t += PAUSE_AFTER_CMD;
+  const lines = s.out.split('\n');
+  for (let k = 1; k <= lines.length; k++) { events.push({t, step:i, typed:s.cmd.length, lines:k}); t += LINE_MS; }
+  t += s.cmd.startsWith('echo') ? GAP : 700;
+});
+window.TOTAL_MS = t + END_HOLD;
+
+window.renderAt = function(ms) {
+  let ev = events[0];
+  for (const e of events) { if (e.t <= ms) ev = e; else break; }
+  const out = [];
+  for (let i = 0; i <= ev.step; i++) {
+    const s = SESSION[i];
+    const done = i < ev.step;
+    const typed = done ? s.cmd.length : ev.typed;
+    const showCursor = !done && ev.lines === 0;
+    out.push('<div class="l"><span class="prompt">$ </span><span class="cmd">' + esc(s.cmd.slice(0, typed)) + '</span>' + (showCursor ? '<span class="cursor"></span>' : '') + '</div>');
+    const lines = s.out.split('\n');
+    const n = done ? lines.length : ev.lines;
+    for (let k = 0; k < n; k++) out.push('<div class="l">' + deco(lines[k], i) + '</div>');
+  }
+  const last = SESSION.length - 1;
+  if (ev.step === last && ev.lines === SESSION[last].out.split('\n').length)
+    out.push('<div class="l"><span class="prompt">$ </span><span class="cursor"></span></div>');
+  const el = document.getElementById('s');
+  el.innerHTML = out.join('');
+  while (el.scrollHeight > el.clientHeight && el.firstChild) el.removeChild(el.firstChild);
+};
+</script>
+</body>
+</html>

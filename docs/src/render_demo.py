@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Record docs/demo.gif: a typed terminal session with real gdoc-surgical output.
+"""Record a typed terminal session with real gdoc-surgical output as a GIF.
+
+Two sessions, both run offline against the sample doc in offline_demo.py:
+  demo    docs/demo.gif    read, replace "Q3 2026" with "Q4 2026", read again
+  guards  docs/guards.gif  a stale --expect and a typo are refused, exit 2,
+                           and a read shows the doc did not change
 
 1. Capture real output (offline, no Google account):
-       python docs/src/render_demo.py capture
+       python docs/src/render_demo.py capture [demo|guards]
 2. Render frames with Playwright and build the GIF with ffmpeg:
-       python docs/src/render_demo.py
+       python docs/src/render_demo.py [demo|guards]
 """
 import json
 import os
@@ -15,37 +20,65 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
-SESSION = os.path.join(HERE, 'demo_session.json')
-OUT = os.path.join(HERE, '..', 'demo.gif')
 FPS = 12
 
-STEPS = [
+DEMO_STEPS = [
     (['read', '--id', 'DEMO_DOC'], 'python3 gdoc_surgical.py read --id DEMO_DOC'),
     (['replace', '--id', 'DEMO_DOC', '--find', 'Q3 2026', '--with', 'Q4 2026'],
      'python3 gdoc_surgical.py replace --id DEMO_DOC --find "Q3 2026" --with "Q4 2026"'),
     (['read', '--id', 'DEMO_DOC'], 'python3 gdoc_surgical.py read --id DEMO_DOC'),
 ]
 
+# 'EXIT' prints the exit code of the step before it, like `echo $?`.
+GUARD_STEPS = [
+    (['set-cell', '--id', 'DEMO_DOC', '--table', '0', '--row', '1', '--col', '1',
+      '--with', 'Q4 2026', '--expect', 'Q2 2026'],
+     'python3 gdoc_surgical.py set-cell --id DEMO_DOC --table 0 --row 1 --col 1 '
+     '--with "Q4 2026" --expect "Q2 2026"'),
+    ('EXIT', 'echo $?'),
+    (['replace', '--id', 'DEMO_DOC', '--find', 'Q3 2025', '--with', 'Q4 2026'],
+     'python3 gdoc_surgical.py replace --id DEMO_DOC --find "Q3 2025" --with "Q4 2026"'),
+    ('EXIT', 'echo $?'),
+    (['read', '--id', 'DEMO_DOC'], 'python3 gdoc_surgical.py read --id DEMO_DOC'),
+]
 
-def capture():
+SESSIONS = {
+    # name: (steps, session json, page, output gif, viewport w, h)
+    'demo': (DEMO_STEPS, 'demo_session.json', 'demo.html', 'demo.gif', 800, 450),
+    'guards': (GUARD_STEPS, 'guards_session.json', 'guards.html', 'guards.gif', 1000, 640),
+}
+
+
+def capture(name):
+    steps, session_file = SESSIONS[name][:2]
     demo = os.path.join(HERE, 'offline_demo.py')
     subprocess.run([sys.executable, demo, 'reset'], check=True)
-    session = []
-    for argv, shown in STEPS:
-        r = subprocess.run([sys.executable, demo] + argv, capture_output=True,
-                           text=True, cwd=ROOT, check=True)
+    session, last_code = [], 0
+    for argv, shown in steps:
+        if argv == 'EXIT':
+            session.append({'cmd': shown, 'out': str(last_code)})
+            continue
+        # stderr is merged in, because the guards print their refusal there.
+        r = subprocess.run([sys.executable, demo] + argv, stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True, cwd=ROOT)
+        if r.returncode not in (0, 2):
+            sys.exit('unexpected exit %d:\n%s' % (r.returncode, r.stdout))
+        last_code = r.returncode
         session.append({'cmd': shown, 'out': r.stdout.rstrip('\n')})
     subprocess.run([sys.executable, demo, 'reset'], check=True)
-    with open(SESSION, 'w', encoding='utf-8') as fh:
+    path = os.path.join(HERE, session_file)
+    with open(path, 'w', encoding='utf-8') as fh:
         json.dump(session, fh, indent=1)
-    print('wrote', SESSION)
+    print('wrote', path)
 
 
-def render():
+def render(name):
     from playwright.sync_api import sync_playwright
-    with open(SESSION, encoding='utf-8') as fh:
+    _, session_file, page_file, gif, w, h = SESSIONS[name]
+    OUT = os.path.join(HERE, '..', gif)
+    with open(os.path.join(HERE, session_file), encoding='utf-8') as fh:
         session = fh.read()
-    with open(os.path.join(HERE, 'demo.html'), encoding='utf-8') as fh:
+    with open(os.path.join(HERE, page_file), encoding='utf-8') as fh:
         html = fh.read().replace('__SESSION__', session)
     tmp = tempfile.mkdtemp(prefix='gdoc_demo_')
     page_path = os.path.join(tmp, 'demo.html')
@@ -53,7 +86,7 @@ def render():
         fh.write(html)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={'width': 800, 'height': 450})
+        page = browser.new_page(viewport={'width': w, 'height': h})
         page.goto('file:///' + page_path.replace('\\', '/'))
         page.wait_for_load_state('networkidle')
         page.evaluate('document.fonts.ready')
@@ -76,7 +109,8 @@ def render():
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] == ['capture']:
-        capture()
+    args = sys.argv[1:]
+    if args and args[0] == 'capture':
+        capture(args[1] if len(args) > 1 else 'demo')
     else:
-        render()
+        render(args[0] if args else 'demo')

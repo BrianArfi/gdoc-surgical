@@ -16,6 +16,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `read` prints the rows of each table under its `<TABLE #n>` line, so table text can be checked before a write.
 
 ### Changed
+- README: a concrete problem scenario, who it is for and not for, a Before / After table, an animated hero, before/after and how-it-works GIFs, and a second real recording that shows the guards refusing (`docs/guards.gif`). Sources and one-command re-render scripts are in `docs/src/`.
 - `replace` counts matches in table cells too before it writes, and reports the split: `Found 'X' 3 time(s): 1 in paragraphs, 2 in table cells.`
 
 ## [1.0.0] - 2026-09-22
